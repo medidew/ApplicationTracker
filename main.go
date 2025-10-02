@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5"
+
+	"github.com/medidew/ApplicationTracker/types"
 )
 
 func main() {
@@ -28,11 +30,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	test, err := types.NewJobApplication("company", types.SoftwareEngineer, types.Active)
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		os.Exit(1)
+	}
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("welcome"))
 		fmt.Printf("id: %v\n", id)
+		fmt.Printf("test: %v\n", test)
 	})
 
 	http.ListenAndServe(":3000", r)
