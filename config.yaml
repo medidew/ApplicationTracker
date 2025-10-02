@@ -1,0 +1,5 @@
+database:
+  user: postgres
+  host: db.oufdeqgibmyfuwedsjep.supabase.co
+  port: 5432
+  name: postgres
