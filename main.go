@@ -23,8 +23,8 @@ import (
 const LOG_TO_CLI bool = true
 
 // Loads the .yaml config file from `path`.
-func loadConfig(path string) (types.Config, error) {
-	cfg := types.Config{}
+func loadConfig(path string) (types.DBConfig, error) {
+	cfg := types.DBConfig{}
 
 	config_file, err := os.ReadFile(path)
 	if err != nil { return cfg, err }
@@ -71,8 +71,10 @@ func main() {
 
 	database_url := os.Getenv("DATABASE_URL")
 
-	if database_url == "" {
-		cfg, err := loadConfig("config.yaml")
+	if database_url != "" {
+		sugar.Info("DATABASE_URL env var found, skipping dbconfig...")
+	} else {
+		cfg, err := loadConfig("configs/dbconfig.yaml")
 		if err != nil { sugar.Panic(err) }
 		sugar.Info("Config file loaded")
 
@@ -83,8 +85,6 @@ func main() {
 		sugar.Info("Password accepted")
 
 		database_url = "postgresql://" + cfg.Database.User + ":" + string(password) + "@" + cfg.Database.Host + ":" + cfg.Database.Port + "/" + cfg.Database.Name
-	} else {
-		sugar.Info("DATABASE_URL env var found")
 	}
 
 	conn, err := pgxpool.New(context.Background(), database_url)
@@ -107,11 +107,11 @@ func main() {
 
 	r.Route("/applications", func(r chi.Router) {
 		r.Get("/", app.ListApplications)
-		//r.Get("/{company}", handlers.GetApplication)
+		r.Get("/{companyID}", app.GetApplication)
 
-		//r.Post("/", handlers.CreateApplication)
-		//r.Put("/{company}", handlers.UpdateApplication)
-		//r.Delete("/{company}", handlers.DeleteApplication)
+		//r.Post("/", app.CreateApplication)
+		//r.Put("/{companyID}", app.UpdateApplication)
+		//r.Delete("/{companyID}", app.DeleteApplication)
 	})
 
 	http.ListenAndServe(":3000", r)

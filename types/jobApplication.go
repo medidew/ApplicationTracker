@@ -1,6 +1,7 @@
 package types
 
 import (
+	"encoding/json"
 	"errors"
 	"slices"
 )
@@ -44,6 +45,33 @@ type JobApplication struct {
 	role    JobRole
 	status  ApplicationStatus
 	notes   []string
+}
+
+func (ja *JobApplication) MarshalJSON() ([]byte, error) {
+	company_json, err := json.Marshal(ja.company)
+	if err != nil { return nil, errors.Join(errors.New("could not marshal company"), err) }
+	role_json, err := json.Marshal(ja.role)
+	if err != nil { return nil, errors.Join(errors.New("could not marshal role"), err) }
+	status_json, err := json.Marshal(ja.status.String())
+	if err != nil { return nil, errors.Join(errors.New("could not marshal status"), err) }
+	notes_json, err := json.Marshal(ja.notes)
+	if err != nil { return nil, errors.Join(errors.New("could not marshal notes"), err) }
+
+	// I could construct this as a string then convert afterwards to make it cleaner,
+	//	but this version is impervious to whether I change JobApplication's field types,
+	// 	and also makes adding new fields comically easy.
+	// 	The impact is minimal anyway so I don't care.
+	result := []byte(`{"company":`)
+	result = append(result, company_json...)
+	result = append(result, []byte(`, "role":`)...)
+	result = append(result, role_json...)
+	result = append(result, []byte(`, "status":`)...)
+	result = append(result, status_json...)
+	result = append(result, []byte(`, "notes":`)...)
+	result = append(result, notes_json...)
+	result = append(result, []byte(`}`)...)
+
+	return result, nil
 }
 
 func NewJobApplication(company string, role JobRole, status ApplicationStatus) (*JobApplication, error) {
