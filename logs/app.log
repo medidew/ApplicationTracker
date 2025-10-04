@@ -1,0 +1,11 @@
+2025-10-04T00:51:05.253+0100	INFO	Logger Constructed
+2025-10-04T00:51:05.253+0100	INFO	App Starting
+2025-10-04T00:51:05.254+0100	INFO	Config file loaded
+2025-10-04T00:51:20.211+0100	INFO	Password accepted
+2025-10-04T00:51:20.494+0100	PANIC	ERROR: syntax error at or near "elect" (SQLSTATE 42601)
+2025-10-04T02:13:06.061+0100	INFO	Logger constructed
+2025-10-04T02:13:06.062+0100	INFO	App starting
+2025-10-04T02:13:06.062+0100	INFO	Config file loaded
+2025-10-04T02:13:19.860+0100	INFO	Password accepted
+2025-10-04T02:13:56.275+0100	INFO	Request complete{method 15 0 GET <nil>} {path 15 0 /applications <nil>} {status 15 0 GET <nil>}
+2025-10-04T02:14:29.598+0100	INFO	Request complete{method 15 0 GET <nil>} {path 15 0 /applications <nil>} {status 15 0 GET <nil>}

@@ -3,21 +3,20 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"syscall"
 
 	"golang.org/x/term"
-	"gopkg.in/yaml.v3"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/yaml.v3"
 
+	"github.com/medidew/ApplicationTracker/handlers"
 	"github.com/medidew/ApplicationTracker/types"
 )
 
@@ -63,8 +62,8 @@ func main() {
 
 	sugar := logger.Sugar()
 
-	sugar.Info("Logger Constructed")
-	sugar.Info("App Starting")
+	sugar.Info("Logger constructed")
+	sugar.Info("App starting")
 	
 	/*
 		DB Connect
@@ -88,25 +87,31 @@ func main() {
 		sugar.Info("DATABASE_URL env var found")
 	}
 
-	conn, err := pgx.Connect(context.Background(), database_url)
+	conn, err := pgxpool.New(context.Background(), database_url)
 	if err != nil { sugar.Panic(err) }
-	defer conn.Close(context.Background())
+	defer conn.Close()
 
-	row, err := conn.Query(context.Background(), "elect company from applications where status=$1", 1)
-	if err != nil { sugar.Panic(err) }
-	defer row.Close()
+	/*
+		App
+	*/
 
-	test, err := types.NewJobApplication("company", types.SoftwareEngineer, types.Active)
-	if err != nil { sugar.Panic(err) }
-	test.AddNote("badabing")
-	test.AddNote("badaboom")
-	test.AddNote("b b")
+	app := &handlers.App{DB: conn, Logger: sugar}
 
 	r := chi.NewRouter()
-	r.Use(middleware.Logger)
+
+	r.Use(ZapLoggerMiddleware(sugar))
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("welcome"))
-		log.Printf("test: %v\n", test)
+
+	})
+
+	r.Route("/applications", func(r chi.Router) {
+		r.Get("/", app.ListApplications)
+		//r.Get("/{company}", handlers.GetApplication)
+
+		//r.Post("/", handlers.CreateApplication)
+		//r.Put("/{company}", handlers.UpdateApplication)
+		//r.Delete("/{company}", handlers.DeleteApplication)
 	})
 
 	http.ListenAndServe(":3000", r)
