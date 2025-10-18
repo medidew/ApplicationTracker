@@ -1,4 +1,5 @@
 package types
+
 import (
 	"testing"
 )
@@ -8,16 +9,16 @@ func TestJobApplicationNew(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	ja, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
-	} else if ja.company != company {
+	} else if job_application.company != company {
 		t.Fatalf("NewJobApplication has incorrect company name")
-	} else if ja.role != role {
+	} else if job_application.role != role {
 		t.Fatalf("NewJobApplication has incorrect role")
-	} else if ja.status != status {
+	} else if job_application.status != status {
 		t.Fatalf("NewJobApplication has incorrect status")
-	} else if len(ja.notes) > 0 {
+	} else if len(job_application.notes) > 0 {
 		t.Fatalf("NewJobApplication has >0 notes")
 	}
 }
@@ -49,12 +50,12 @@ func TestUpdateStatus(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	ja, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
 
-	err = ja.UpdateStatus(PendingResponse)
+	err = job_application.UpdateStatus(PendingResponse)
 	if err != nil {
 		t.Fatalf("Failed to updates NewJobApplication status: %v", err)
 	}
@@ -65,12 +66,12 @@ func TestUpdateStatusInvalid(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	ja, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
 
-	err = ja.UpdateStatus(255) // max uint8 val
+	err = job_application.UpdateStatus(255) // max uint8 val
 	if err == nil {
 		t.Fatalf("Failed to throw error on invalid status update")
 	}
@@ -81,16 +82,16 @@ func TestAddNotes(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	ja, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
 
-	ja.AddNote("test")
-	ja.AddNote("tester abc")
-	numNotes := ja.NumNotes()
-	if numNotes != 2 || ja.notes[0] != "test" || ja.notes[1] != "tester abc" {
-		t.Fatalf("Failed to add notes correctly: %v", ja)
+	job_application.AddNote("test")
+	job_application.AddNote("tester abc")
+	num_notes := job_application.NumNotes()
+	if num_notes != 2 || job_application.notes[0] != "test" || job_application.notes[1] != "tester abc" {
+		t.Fatalf("Failed to add notes correctly: %v", job_application)
 	}
 }
 
@@ -99,15 +100,15 @@ func TestRemoveNotes(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	ja, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
 
-	ja.AddNote("test")
-	ja.AddNote("tester abc")
-	ja.RemoveNote(0)
-	if ja.NumNotes() != 1 || ja.notes[0] != "tester abc" {
-		t.Fatalf("Failed to remove notes correctly: %v", ja)
+	job_application.AddNote("test")
+	job_application.AddNote("tester abc")
+	job_application.RemoveNote(0)
+	if job_application.NumNotes() != 1 || job_application.notes[0] != "tester abc" {
+		t.Fatalf("Failed to remove notes correctly: %v", job_application)
 	}
 }

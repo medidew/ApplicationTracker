@@ -6,6 +6,6 @@ import (
 )
 
 type App struct {
-	DB *pgxpool.Pool
+	DB     *pgxpool.Pool
 	Logger *zap.SugaredLogger
 }

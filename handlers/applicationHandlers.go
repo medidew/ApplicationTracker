@@ -10,10 +10,10 @@ import (
 	"github.com/medidew/ApplicationTracker/types"
 )
 
-func (a *App) ListApplications(w http.ResponseWriter, r *http.Request) {
-	rows, err := a.DB.Query(context.Background(), "select company from applications")
+func (app *App) ListApplications(response_writer http.ResponseWriter, request *http.Request) {
+	rows, err := app.DB.Query(context.Background(), "select company from applications")
 	if err != nil {
-		http.Error(w, "DB query failed: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 	defer rows.Close()
@@ -24,58 +24,58 @@ func (a *App) ListApplications(w http.ResponseWriter, r *http.Request) {
 		var company string
 		err = rows.Scan(&company)
 		if err != nil {
-			http.Error(w, "extracting query info failed: " + err.Error(), http.StatusInternalServerError)
+			http.Error(response_writer, "extracting query info failed: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		companies = append(companies, company)
 	}
 
-	res, err := json.Marshal(companies)
+	response, err := json.Marshal(companies)
 	if err != nil {
-		http.Error(w, "failed to marshal: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "failed to marshal: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(res)
+	response_writer.WriteHeader(http.StatusOK)
+	_, err = response_writer.Write(response)
 	if err != nil {
-		http.Error(w, "failed to write response: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "failed to write response: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
 
-func (a *App) GetApplication(w http.ResponseWriter, r *http.Request) {
-	companyID := chi.URLParam(r, "companyID")
+func (app *App) GetApplication(response_writer http.ResponseWriter, request *http.Request) {
+	companyID := chi.URLParam(request, "companyID")
 
 	var role types.JobRole
 	var status types.ApplicationStatus
 	var notes []string
-	err := a.DB.QueryRow(context.Background(), "select role, status, notes from applications where company=$1", companyID).Scan(&role, &status, &notes)
+	err := app.DB.QueryRow(context.Background(), "select role, status, notes from applications where company=$1", companyID).Scan(&role, &status, &notes)
 	if err != nil {
-		http.Error(w, "DB query failed: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ja, err := types.NewJobApplication(companyID, role, status)
+	job_application, err := types.NewJobApplication(companyID, role, status)
 	if err != nil {
-		http.Error(w, "JobApplication constructor error: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "JobApplication constructor error: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	for i := 0; i < len(notes); i++ {
-		ja.AddNote(notes[i])
+		job_application.AddNote(notes[i])
 	}
 
-	res, err := json.Marshal(ja)
+	response, err := json.Marshal(job_application)
 	if err != nil {
-		http.Error(w, "failed to marshal: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "failed to marshal: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_, err = w.Write(res)
+	_, err = response_writer.Write(response)
 	if err != nil {
-		http.Error(w, "failed to write reponse: " + err.Error(), http.StatusInternalServerError)
+		http.Error(response_writer, "failed to write reponse: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
 }

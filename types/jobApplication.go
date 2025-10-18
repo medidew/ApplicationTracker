@@ -12,11 +12,12 @@ type ApplicationStatus byte
 type JobRole string
 
 const (
-	Active ApplicationStatus = iota // Pending action from applicant.
-	PendingResponse // Pending response from employer.
+	Active          ApplicationStatus = iota // Pending action from applicant.
+	PendingResponse                          // Pending response from employer.
 	Rejected
 	Offer
 )
+
 var maxStatus ApplicationStatus = Offer
 
 func (jr ApplicationStatus) String() string {
@@ -37,6 +38,7 @@ func (jr ApplicationStatus) String() string {
 const (
 	SoftwareEngineer JobRole = "Software Engineer"
 )
+
 var roles []JobRole = []JobRole{SoftwareEngineer}
 
 // Job application details.
@@ -49,13 +51,21 @@ type JobApplication struct {
 
 func (ja *JobApplication) MarshalJSON() ([]byte, error) {
 	company_json, err := json.Marshal(ja.company)
-	if err != nil { return nil, errors.Join(errors.New("could not marshal company"), err) }
+	if err != nil {
+		return nil, errors.Join(errors.New("could not marshal company"), err)
+	}
 	role_json, err := json.Marshal(ja.role)
-	if err != nil { return nil, errors.Join(errors.New("could not marshal role"), err) }
+	if err != nil {
+		return nil, errors.Join(errors.New("could not marshal role"), err)
+	}
 	status_json, err := json.Marshal(ja.status.String())
-	if err != nil { return nil, errors.Join(errors.New("could not marshal status"), err) }
+	if err != nil {
+		return nil, errors.Join(errors.New("could not marshal status"), err)
+	}
 	notes_json, err := json.Marshal(ja.notes)
-	if err != nil { return nil, errors.Join(errors.New("could not marshal notes"), err) }
+	if err != nil {
+		return nil, errors.Join(errors.New("could not marshal notes"), err)
+	}
 
 	// I could construct this as a string then convert afterwards to make it cleaner,
 	//	but this version is impervious to whether I change JobApplication's field types,
@@ -91,19 +101,19 @@ func NewJobApplication(company string, role JobRole, status ApplicationStatus) (
 	}, nil
 }
 
-func(ja *JobApplication) GetCompany() string {
+func (ja *JobApplication) GetCompany() string {
 	return ja.company
 }
 
-func(ja *JobApplication) GetRole() JobRole {
+func (ja *JobApplication) GetRole() JobRole {
 	return ja.role
 }
 
-func(ja *JobApplication) GetStatus() ApplicationStatus {
+func (ja *JobApplication) GetStatus() ApplicationStatus {
 	return ja.status
 }
 
-func(ja *JobApplication) UpdateStatus(status ApplicationStatus) error {
+func (ja *JobApplication) UpdateStatus(status ApplicationStatus) error {
 	if status > maxStatus {
 		return errors.New("`status` is not supported by type ApplicationStatus")
 	}
@@ -117,22 +127,22 @@ func (ja *JobApplication) GetNotes() []string {
 	return ja.notes
 }
 
-func(ja *JobApplication) AddNote(note string) {
+func (ja *JobApplication) AddNote(note string) {
 	ja.notes = append(ja.notes, note)
 }
 
-func(ja *JobApplication) NumNotes() int {
+func (ja *JobApplication) NumNotes() int {
 	return len(ja.notes)
 }
 
-func(ja *JobApplication) RemoveNote(index int) error {
+func (ja *JobApplication) RemoveNote(index int) error {
 	if index >= len(ja.notes) {
 		return errors.New("index out of range")
 	} else if index < 0 {
 		return errors.New("index negative")
 	}
 
-	ja.notes = slices.Delete(ja.notes, index, index + 1)
+	ja.notes = slices.Delete(ja.notes, index, index+1)
 	return nil
 }
 

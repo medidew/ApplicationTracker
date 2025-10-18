@@ -7,22 +7,22 @@ import (
 )
 
 func ZapLoggerMiddleware(logger *zap.SugaredLogger) func(next http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sw := &NabWriter{ResponseWriter: w, status: 0}
+	return func(next_handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(response_writer http.ResponseWriter, request *http.Request) {
+			nab_writer := &NabWriter{response_writer: response_writer, status: 0}
 
-			next.ServeHTTP(sw, r)
+			next_handler.ServeHTTP(nab_writer, request)
 
-			if sw.status >= 500 {
-				logger.Errorw("Request failed",
-				zap.String("method", r.Method),
-				zap.String("path", r.URL.Path),
-				zap.Int("status", sw.status))
+			if nab_writer.status >= 500 {
+				logger.Warnw("Request failed",
+					zap.String("method", request.Method),
+					zap.String("path", request.URL.Path),
+					zap.Int("status", nab_writer.status))
 			} else {
 				logger.Infow("Request complete",
-				zap.String("method", r.Method),
-				zap.String("path", r.URL.Path),
-				zap.Int("status", sw.status))
+					zap.String("method", request.Method),
+					zap.String("path", request.URL.Path),
+					zap.Int("status", nab_writer.status))
 			}
 		})
 	}
@@ -30,11 +30,19 @@ func ZapLoggerMiddleware(logger *zap.SugaredLogger) func(next http.Handler) http
 
 // wrapper for ResponseWriter to nab the status code of the response
 type NabWriter struct {
-	http.ResponseWriter
-	status int
+	response_writer http.ResponseWriter
+	status          int
 }
 
-func (w *NabWriter) WriteHeader(code int) {
-	w.status = code
-	w.ResponseWriter.WriteHeader(code)
+func (nab_writer *NabWriter) WriteHeader(code int) {
+	nab_writer.status = code
+	nab_writer.response_writer.WriteHeader(code)
+}
+
+func (nab_writer *NabWriter) Header() http.Header {
+	return nab_writer.response_writer.Header()
+}
+
+func (nab_writer *NabWriter) Write(b []byte) (int, error) {
+	return nab_writer.response_writer.Write(b)
 }
