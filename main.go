@@ -9,15 +9,14 @@ import (
 
 	"golang.org/x/term"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v3"
 
-	"github.com/medidew/ApplicationTracker/handlers"
-	"github.com/medidew/ApplicationTracker/types"
+	"github.com/medidew/ApplicationTracker/internal/http/handlers"
+	"github.com/medidew/ApplicationTracker/internal/types"
 )
 
 const LOG_TO_CLI bool = true
@@ -74,10 +73,8 @@ func main() {
 	logger := zap.New(core)
 	defer logger.Sync()
 
-	sugared_logger := logger.Sugar()
-
-	sugared_logger.Info("Logger constructed")
-	sugared_logger.Info("App starting")
+	logger.Info("Logger constructed")
+	logger.Info("App starting")
 
 	/*
 		DB Connect
@@ -86,27 +83,27 @@ func main() {
 	database_url := os.Getenv("DATABASE_URL")
 
 	if database_url != "" {
-		sugared_logger.Info("DATABASE_URL env var found, skipping dbconfig...")
+		logger.Info("DATABASE_URL env var found, skipping dbconfig...")
 	} else {
 		cfg, err := loadConfig("configs/dbconfig.yaml")
 		if err != nil {
-			sugared_logger.Panic(err)
+			logger.Panic(err.Error())
 		}
-		sugared_logger.Info("Config file loaded")
+		logger.Info("Config file loaded")
 
 		fmt.Println("Enter the database password:")
 		password, err := term.ReadPassword(int(syscall.Stdin))
 		if err != nil {
-			sugared_logger.Panic(err)
+			logger.Panic(err.Error())
 		}
-		sugared_logger.Info("Password accepted")
+		logger.Info("Password accepted")
 
 		database_url = "postgresql://" + cfg.Database.User + ":" + string(password) + "@" + cfg.Database.Host + ":" + cfg.Database.Port + "/" + cfg.Database.Name
 	}
 
 	pool, err := pgxpool.New(context.Background(), database_url)
 	if err != nil {
-		sugared_logger.Panic(err)
+		logger.Panic(err.Error())
 	}
 	defer pool.Close()
 
@@ -115,26 +112,13 @@ func main() {
 	*/
 
 	app := &handlers.App{
-		DB:     pool,
-		Logger: sugared_logger,
+		DB:     &types.DB{Pool: pool},
+		Logger: logger,
 	}
 
-	router := chi.NewRouter()
+	router := handlers.SetupRouter(app)
 
-	router.Use(ZapLoggerMiddleware(sugared_logger))
-
-	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-
-	})
-
-	router.Route("/applications", func(router chi.Router) {
-		router.Get("/", app.ListApplications)
-		router.Get("/{companyID}", app.GetApplication)
-
-		//r.Post("/", app.CreateApplication)
-		//r.Put("/{companyID}", app.UpdateApplication)
-		//r.Delete("/{companyID}", app.DeleteApplication)
-	})
+	logger.Info("Starting HTTP server on :3000")
 
 	http.ListenAndServe(":3000", router)
 }

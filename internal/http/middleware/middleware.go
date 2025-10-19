@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func ZapLoggerMiddleware(logger *zap.SugaredLogger) func(next http.Handler) http.Handler {
+func ZapLoggerMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next_handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(response_writer http.ResponseWriter, request *http.Request) {
 			nab_writer := &NabWriter{response_writer: response_writer, status: 0}
@@ -14,12 +14,12 @@ func ZapLoggerMiddleware(logger *zap.SugaredLogger) func(next http.Handler) http
 			next_handler.ServeHTTP(nab_writer, request)
 
 			if nab_writer.status >= 500 {
-				logger.Warnw("Request failed",
+				logger.Warn("Request failed",
 					zap.String("method", request.Method),
 					zap.String("path", request.URL.Path),
 					zap.Int("status", nab_writer.status))
 			} else {
-				logger.Infow("Request complete",
+				logger.Info("Request complete",
 					zap.String("method", request.Method),
 					zap.String("path", request.URL.Path),
 					zap.Int("status", nab_writer.status))

@@ -8,8 +8,9 @@ func TestJobApplicationNew(t *testing.T) {
 	company := "Medidew Inc."
 	role := SoftwareEngineer
 	status := Active
+	notes := []string{"test note", "test note 2"}
 
-	job_application, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status, notes)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	} else if job_application.company != company {
@@ -18,8 +19,8 @@ func TestJobApplicationNew(t *testing.T) {
 		t.Fatalf("NewJobApplication has incorrect role")
 	} else if job_application.status != status {
 		t.Fatalf("NewJobApplication has incorrect status")
-	} else if len(job_application.notes) > 0 {
-		t.Fatalf("NewJobApplication has >0 notes")
+	} else if len(job_application.notes) != 2 {
+		t.Fatalf("NewJobApplication has too many/few notes")
 	}
 }
 
@@ -27,8 +28,9 @@ func TestJobApplicationNewFakeRole(t *testing.T) {
 	company := "Medidew Inc."
 	var role JobRole = "Not a real job"
 	status := Active
+	notes := []string{"test note", "test note 2"}
 
-	_, err := NewJobApplication(company, role, status)
+	_, err := NewJobApplication(company, role, status, notes)
 	if err == nil {
 		t.Fatalf("Failed to throw error on non-JobRole string")
 	}
@@ -38,8 +40,9 @@ func TestJobApplicationNewInvalidStatus(t *testing.T) {
 	company := "Medidew Inc."
 	role := SoftwareEngineer
 	var status ApplicationStatus = 255 // max uint8 val
+	notes := []string{"test note", "test note 2"}
 
-	_, err := NewJobApplication(company, role, status)
+	_, err := NewJobApplication(company, role, status, notes)
 	if err == nil {
 		t.Fatalf("Failed to throw error on invalid status value")
 	}
@@ -49,8 +52,9 @@ func TestUpdateStatus(t *testing.T) {
 	company := "Medidew Inc."
 	role := SoftwareEngineer
 	status := Active
+	notes := []string{"test note", "test note 2"}
 
-	job_application, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status, notes)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
@@ -65,8 +69,9 @@ func TestUpdateStatusInvalid(t *testing.T) {
 	company := "Medidew Inc."
 	role := SoftwareEngineer
 	status := Active
+	notes := []string{"test note", "test note 2"}
 
-	job_application, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status, notes)
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
@@ -82,7 +87,7 @@ func TestAddNotes(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	job_application, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status, []string{})
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
@@ -100,7 +105,7 @@ func TestRemoveNotes(t *testing.T) {
 	role := SoftwareEngineer
 	status := Active
 
-	job_application, err := NewJobApplication(company, role, status)
+	job_application, err := NewJobApplication(company, role, status, []string{})
 	if err != nil {
 		t.Fatalf("Failed to create NewJobApplication: %v", err)
 	}
