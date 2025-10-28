@@ -1,0 +1,17 @@
+2025-10-21T20:48:59.254+0100	INFO	Logger constructed
+2025-10-21T20:48:59.254+0100	INFO	App starting
+2025-10-21T20:48:59.254+0100	INFO	Config file loaded
+2025-10-21T20:49:30.175+0100	INFO	Logger constructed
+2025-10-21T20:49:30.175+0100	INFO	App starting
+2025-10-21T20:49:30.175+0100	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-21T20:49:30.175+0100	INFO	Starting HTTP server on :3000
+2025-10-28T18:27:58.546Z	INFO	Logger constructed
+2025-10-28T18:27:58.547Z	INFO	App starting
+2025-10-28T18:27:58.547Z	INFO	Config file loaded
+2025-10-28T18:28:30.975Z	INFO	Logger constructed
+2025-10-28T18:28:30.975Z	INFO	App starting
+2025-10-28T18:28:30.975Z	INFO	Config file loaded
+2025-10-28T18:28:37.422Z	INFO	Logger constructed
+2025-10-28T18:28:37.422Z	INFO	App starting
+2025-10-28T18:28:37.422Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-28T18:28:37.422Z	INFO	Starting HTTP server on :3000

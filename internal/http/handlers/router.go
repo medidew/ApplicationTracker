@@ -34,5 +34,9 @@ func SetupRouter(app *App) *chi.Mux {
 		})
 	})
 
+	router.Get("/register", app.Register)
+	router.Get("/login", app.Login)
+	router.Get("/logout", app.Logout)
+
 	return router
 }

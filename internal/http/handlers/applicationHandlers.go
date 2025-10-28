@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"github.com/medidew/ApplicationTracker/internal/types"
+	"github.com/medidew/ApplicationTracker/internal/store"
 )
 
 func (app *App) ListApplications(response_writer http.ResponseWriter, request *http.Request) {
@@ -62,7 +62,7 @@ func (app *App) CreateApplication(response_writer http.ResponseWriter, request *
 		return
 	}
 
-	new_application := &types.JobApplication{}
+	new_application := &store.JobApplication{}
 
 	err = new_application.UnmarshalJSON(request_body)
 	if err != nil {
@@ -95,7 +95,7 @@ func (app *App) UpdateApplicationStatus(response_writer http.ResponseWriter, req
 	companyID := chi.URLParam(request, "companyID")
 
 	var status_update struct {
-		Status types.ApplicationStatus `json:"status"`
+		Status store.ApplicationStatus `json:"status"`
 	}
 
 	decoder := json.NewDecoder(request.Body)

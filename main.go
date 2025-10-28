@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"os"
 	"syscall"
+	"time"
 
 	"golang.org/x/term"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -16,14 +18,14 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/medidew/ApplicationTracker/internal/http/handlers"
-	"github.com/medidew/ApplicationTracker/internal/types"
+	"github.com/medidew/ApplicationTracker/internal/store"
 )
 
 const LOG_TO_CLI bool = true
 
 // Loads the .yaml config file from `path`.
-func loadConfig(path string) (types.DBConfig, error) {
-	cfg := types.DBConfig{}
+func loadConfig(path string) (store.DBConfig, error) {
+	cfg := store.DBConfig{}
 
 	config_file, err := os.ReadFile(path)
 	if err != nil {
@@ -110,10 +112,17 @@ func main() {
 	/*
 		App
 	*/
+	session_manager := scs.New()
+	session_manager.Lifetime = 12 * time.Hour
+	session_manager.IdleTimeout = 1 * time.Hour
+	session_manager.Cookie.Secure = true
+	session_manager.Cookie.HttpOnly = true
+	session_manager.Cookie.SameSite = http.SameSiteLaxMode
 
 	app := &handlers.App{
-		DB:     &types.DB{Pool: pool},
+		DB:     &store.DB{Pool: pool},
 		Logger: logger,
+		SessionManager: session_manager,
 	}
 
 	router := handlers.SetupRouter(app)

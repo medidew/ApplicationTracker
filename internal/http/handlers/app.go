@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"github.com/alexedwards/scs/v2"
+	"github.com/medidew/ApplicationTracker/internal/store"
 	"go.uber.org/zap"
-	"github.com/medidew/ApplicationTracker/internal/types"
 )
 
 type App struct {
-	DB     types.Store
+	DB     store.Store
 	Logger *zap.Logger
+	SessionManager *scs.SessionManager
 }

@@ -9,7 +9,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"github.com/medidew/ApplicationTracker/internal/types"
+	"github.com/medidew/ApplicationTracker/internal/store"
 )
 
 func setupTestRouter(*App) http.Handler {
@@ -18,17 +18,17 @@ func setupTestRouter(*App) http.Handler {
 }
 
 func setupTestApp() *App {
-	fake_application_one, err := types.NewJobApplication("Fake Company", types.SoftwareEngineer, types.Active, []string{"Note one.", "Note two."})
+	fake_application_one, err := store.NewJobApplication("Fake Company", store.SoftwareEngineer, store.Active, []string{"Note one.", "Note two."})
 	if err != nil {
 		panic("Failed to create fake job application for testing: " + err.Error())
 	}
 	
-	fake_application_two, err := types.NewJobApplication("Another Fake Company", types.SoftwareEngineer, types.PendingResponse, []string{"Initial note."})
+	fake_application_two, err := store.NewJobApplication("Another Fake Company", store.SoftwareEngineer, store.PendingResponse, []string{"Initial note."})
 	if err != nil {
 		panic("Failed to create fake job application for testing: " + err.Error())
 	}
 
-	db := types.NewFakeStore([]*types.JobApplication{fake_application_one, fake_application_two})
+	db := store.NewFakeStore([]*store.JobApplication{fake_application_one, fake_application_two})
 
 	return &App{
 		DB:     db,
