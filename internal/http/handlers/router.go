@@ -12,6 +12,7 @@ func SetupRouter(app *App) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
+	router.Use(app.SessionManager.LoadAndSave)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
@@ -34,8 +35,8 @@ func SetupRouter(app *App) *chi.Mux {
 		})
 	})
 
-	router.Get("/register", app.Register)
-	router.Get("/login", app.Login)
+	router.Post("/register", app.Register)
+	router.Post("/login", app.Login)
 	router.Get("/logout", app.Logout)
 
 	return router

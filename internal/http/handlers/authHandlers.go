@@ -50,7 +50,7 @@ func (app *App) Login(response_writer http.ResponseWriter, request *http.Request
 		return
 	}
 
-	if !argon2auth.VerifyPassword([]byte(password), []byte(hashed_password)) {
+	if !argon2auth.VerifyPassword([]byte(password), hashed_password) {
 		http.Error(response_writer, "invalid username or password", http.StatusUnauthorized)
 		return
 	}

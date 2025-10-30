@@ -15,3 +15,92 @@
 2025-10-28T18:28:37.422Z	INFO	App starting
 2025-10-28T18:28:37.422Z	INFO	DATABASE_URL env var found, skipping dbconfig...
 2025-10-28T18:28:37.422Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:33:33.701Z	INFO	Logger constructed
+2025-10-29T21:33:33.702Z	INFO	App starting
+2025-10-29T21:33:33.702Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:33:33.703Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:35:16.260Z	INFO	Request complete	{"method": "PUT", "path": "/register", "status": 404}
+2025-10-29T21:35:28.056Z	INFO	Request complete	{"method": "PUT", "path": "/", "status": 405}
+2025-10-29T21:35:32.646Z	INFO	Request complete	{"method": "PUT", "path": "/register/", "status": 404}
+2025-10-29T21:36:08.515Z	INFO	Logger constructed
+2025-10-29T21:36:08.515Z	INFO	App starting
+2025-10-29T21:36:08.515Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:36:08.515Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:36:47.915Z	INFO	Request complete	{"method": "POST", "path": "/register/", "status": 404}
+2025-10-29T21:36:56.062Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:38:31.022Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:41:44.080Z	INFO	Logger constructed
+2025-10-29T21:41:44.080Z	INFO	App starting
+2025-10-29T21:41:44.080Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:41:44.080Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:41:49.023Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:42:29.792Z	INFO	Logger constructed
+2025-10-29T21:42:29.792Z	INFO	App starting
+2025-10-29T21:42:29.792Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:42:29.792Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:42:35.812Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:45:12.770Z	INFO	Logger constructed
+2025-10-29T21:45:12.771Z	INFO	App starting
+2025-10-29T21:45:12.771Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:45:12.771Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:45:16.018Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:45:46.589Z	INFO	Logger constructed
+2025-10-29T21:45:46.589Z	INFO	App starting
+2025-10-29T21:45:46.589Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:45:46.590Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:45:49.041Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T21:47:29.398Z	INFO	Logger constructed
+2025-10-29T21:47:29.398Z	INFO	App starting
+2025-10-29T21:47:29.398Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:47:29.398Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:47:31.601Z	INFO	Request complete	{"method": "POST", "path": "/register", "status": 201}
+2025-10-29T21:57:41.572Z	INFO	Logger constructed
+2025-10-29T21:57:41.573Z	INFO	App starting
+2025-10-29T21:57:41.573Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T21:57:41.573Z	INFO	Starting HTTP server on :3000
+2025-10-29T21:57:43.580Z	INFO	Request complete	{"method": "POST", "path": "/register", "status": 201}
+2025-10-29T21:58:26.213Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T21:58:28.157Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T22:07:22.956Z	INFO	Logger constructed
+2025-10-29T22:07:22.956Z	INFO	App starting
+2025-10-29T22:07:22.956Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:07:22.956Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:07:28.487Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T22:07:30.275Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T22:07:34.517Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T22:08:43.594Z	INFO	Logger constructed
+2025-10-29T22:08:43.594Z	INFO	App starting
+2025-10-29T22:08:43.594Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:08:43.594Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:08:45.767Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 401}
+2025-10-29T22:10:42.820Z	INFO	Logger constructed
+2025-10-29T22:10:42.820Z	INFO	App starting
+2025-10-29T22:10:42.820Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:10:42.820Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:13:00.952Z	INFO	Logger constructed
+2025-10-29T22:13:00.952Z	INFO	App starting
+2025-10-29T22:13:00.952Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:13:00.952Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:15:17.208Z	INFO	Logger constructed
+2025-10-29T22:15:17.208Z	INFO	App starting
+2025-10-29T22:15:17.208Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:15:17.208Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:15:21.180Z	INFO	User user logged in
+2025-10-29T22:15:21.180Z	INFO	Session created for user: user
+2025-10-29T22:15:21.180Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 0}
+2025-10-29T22:15:25.403Z	INFO	User user logged in
+2025-10-29T22:15:25.403Z	INFO	Session created for user: user
+2025-10-29T22:15:25.403Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 0}
+2025-10-29T22:15:37.565Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-10-29T22:16:18.252Z	INFO	Request complete	{"method": "GET", "path": "/destroy", "status": 404}
+2025-10-29T22:16:30.702Z	INFO	Request complete	{"method": "GET", "path": "/logout", "status": 0}
+2025-10-29T22:24:17.566Z	INFO	Logger constructed
+2025-10-29T22:24:17.566Z	INFO	App starting
+2025-10-29T22:24:17.566Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-10-29T22:24:17.566Z	INFO	Starting HTTP server on :3000
+2025-10-29T22:24:21.602Z	INFO	Request complete	{"method": "GET", "path": "/logout", "status": 0}
+2025-10-29T22:24:26.380Z	INFO	User user logged in
+2025-10-29T22:24:26.381Z	INFO	Session created for user: user
+2025-10-29T22:24:26.381Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 0}
+2025-10-29T22:24:32.369Z	INFO	Request complete	{"method": "GET", "path": "/logout", "status": 0}
+2025-10-29T22:24:36.876Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/medidew/ApplicationTracker/internal/store"
 )
 
@@ -28,19 +30,34 @@ func setupTestApp() *App {
 		panic("Failed to create fake job application for testing: " + err.Error())
 	}
 
-	db := store.NewFakeStore([]*store.JobApplication{fake_application_one, fake_application_two})
+	database_map := map[string][]*store.JobApplication{
+		"testuser": {fake_application_one, fake_application_two},
+	}
+	database := store.NewFakeStore(database_map)
+
+	session_manager := scs.New()
+	session_manager.Cookie.Secure = false
 
 	return &App{
-		DB:     db,
+		DB:     database,
 		Logger: zap.NewNop(),
+		SessionManager: session_manager,
 	}
+}
+
+func setupSessionContext(app *App, username string) context.Context {
+	ctx, _ := app.SessionManager.Load(context.Background(), "")
+	app.SessionManager.Put(ctx, "username", username)
+	app.SessionManager.Commit(ctx)
+	return ctx
 }
 
 func TestListApplications(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodGet, "/applications", nil)
+	request := httptest.NewRequest(http.MethodGet, "/applications", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -58,9 +75,10 @@ func TestListApplications(t *testing.T) {
 func TestGetApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	// Test fetching an existing application
-	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company", nil)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -76,9 +94,10 @@ func TestGetApplication(t *testing.T) {
 func TestGetInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	// Test fetching a non-existing application
-	request := httptest.NewRequest(http.MethodGet, "/applications/Non%20Existent%20Company", nil)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Non%20Existent%20Company", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -94,6 +113,7 @@ func TestGetInvalidApplication(t *testing.T) {
 func TestCreateApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	new_application := `{
 		"company": "New Company",
@@ -102,7 +122,7 @@ func TestCreateApplication(t *testing.T) {
 		"notes": ["Exciting opportunity."]
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(new_application)))
+	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(new_application))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -118,6 +138,7 @@ func TestCreateApplication(t *testing.T) {
 func TestCreateDuplicateApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	duplicate_application := `{
 		"company": "Fake Company",
@@ -126,7 +147,7 @@ func TestCreateDuplicateApplication(t *testing.T) {
 		"notes": ["Another note."]
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(duplicate_application)))
+	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(duplicate_application))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -142,8 +163,9 @@ func TestCreateDuplicateApplication(t *testing.T) {
 func TestDeleteApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -159,8 +181,9 @@ func TestDeleteApplication(t *testing.T) {
 func TestDeleteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -176,12 +199,13 @@ func TestDeleteInvalidApplication(t *testing.T) {
 func TestUpdateApplicationStatus(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	status_update := `{
 		"status": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(status_update)))
+	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(status_update))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -197,12 +221,13 @@ func TestUpdateApplicationStatus(t *testing.T) {
 func TestUpdateInvalidApplicationStatus(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	status_update := `{
 		"status": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Non%20Existent%20Company", io.NopCloser(strings.NewReader(status_update)))
+	request := httptest.NewRequest(http.MethodPut, "/applications/Non%20Existent%20Company", io.NopCloser(strings.NewReader(status_update))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -218,12 +243,13 @@ func TestUpdateInvalidApplicationStatus(t *testing.T) {
 func TestUpdateApplicationStatusInvalidPayload(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	invalid_status_update := `{
 		"state": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(invalid_status_update)))
+	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(invalid_status_update))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -239,8 +265,9 @@ func TestUpdateApplicationStatusInvalidPayload(t *testing.T) {
 func TestListApplicationNotes(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company/notes", nil)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company/notes", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -256,12 +283,13 @@ func TestListApplicationNotes(t *testing.T) {
 func TestAddApplicationNote(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	note_addition := `{
 		"note": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(note_addition)))
+	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(note_addition))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -277,12 +305,13 @@ func TestAddApplicationNote(t *testing.T) {
 func TestAddApplicationNoteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	note_addition := `{
 		"note": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Non%20Existent%20Company/notes", io.NopCloser(strings.NewReader(note_addition)))
+	request := httptest.NewRequest(http.MethodPost, "/applications/Non%20Existent%20Company/notes", io.NopCloser(strings.NewReader(note_addition))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -298,12 +327,13 @@ func TestAddApplicationNoteInvalidApplication(t *testing.T) {
 func TestAddApplicationNoteInvalidPayload(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
 	invalid_note_addition := `{
 		"text": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(invalid_note_addition)))
+	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(invalid_note_addition))).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -319,8 +349,9 @@ func TestAddApplicationNoteInvalidPayload(t *testing.T) {
 func TestRemoveApplicationNote(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/0", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/0", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -336,8 +367,9 @@ func TestRemoveApplicationNote(t *testing.T) {
 func TestRemoveApplicationNoteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company/notes/0", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company/notes/0", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -353,8 +385,9 @@ func TestRemoveApplicationNoteInvalidApplication(t *testing.T) {
 func TestRemoveApplicationNoteOutOfRange(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/10", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/10", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -370,8 +403,9 @@ func TestRemoveApplicationNoteOutOfRange(t *testing.T) {
 func TestRemoveApplicationNoteNegativeIndex(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
+	ctx := setupSessionContext(app, "testuser")
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/-1", nil)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/-1", nil).WithContext(ctx)
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)

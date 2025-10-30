@@ -12,7 +12,8 @@ import (
 )
 
 func (app *App) ListApplications(response_writer http.ResponseWriter, request *http.Request) {
-	applications, err := app.DB.ListApplications()
+	username := app.SessionManager.GetString(request.Context(), "username")
+	applications, err := app.DB.ListApplications(username)
 	if err != nil {
 		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -34,8 +35,9 @@ func (app *App) ListApplications(response_writer http.ResponseWriter, request *h
 
 func (app *App) GetApplication(response_writer http.ResponseWriter, request *http.Request) {
 	companyID := chi.URLParam(request, "companyID")
+	username := app.SessionManager.GetString(request.Context(), "username")
 
-	job_application, err := app.DB.GetApplication(companyID)
+	job_application, err := app.DB.GetApplication(username, companyID)
 	if err != nil {
 		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -70,7 +72,8 @@ func (app *App) CreateApplication(response_writer http.ResponseWriter, request *
 		return
 	}
 
-	err = app.DB.CreateApplication(new_application)
+	username := app.SessionManager.GetString(request.Context(), "username")
+	err = app.DB.CreateApplication(username, new_application)
 	if err != nil {
 		http.Error(response_writer, "DB insert failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -81,8 +84,9 @@ func (app *App) CreateApplication(response_writer http.ResponseWriter, request *
 
 func (app *App) DeleteApplication(response_writer http.ResponseWriter, request *http.Request) {
 	companyID := chi.URLParam(request, "companyID")
+	username := app.SessionManager.GetString(request.Context(), "username")
 
-	err := app.DB.DeleteApplication(companyID)
+	err := app.DB.DeleteApplication(username, companyID)
 	if err != nil {
 		http.Error(response_writer, "DB delete failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -107,7 +111,8 @@ func (app *App) UpdateApplicationStatus(response_writer http.ResponseWriter, req
 		return
 	}
 
-	err = app.DB.UpdateApplicationStatus(companyID, status_update.Status)
+	username := app.SessionManager.GetString(request.Context(), "username")
+	err = app.DB.UpdateApplicationStatus(username, companyID, status_update.Status)
 	if err != nil {
 		http.Error(response_writer, "DB update failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -118,8 +123,9 @@ func (app *App) UpdateApplicationStatus(response_writer http.ResponseWriter, req
 
 func (app *App) ListApplicationNotes(response_writer http.ResponseWriter, request *http.Request) {
 	companyID := chi.URLParam(request, "companyID")
+	username := app.SessionManager.GetString(request.Context(), "username")
 
-	notes, err := app.DB.ListApplicationNotes(companyID)
+	notes, err := app.DB.ListApplicationNotes(username, companyID)
 	if err != nil {
 		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -154,7 +160,8 @@ func (app *App) AddApplicationNote(response_writer http.ResponseWriter, request 
 		return
 	}
 
-	err = app.DB.AddApplicationNote(companyID, note_addition.Note)
+	username := app.SessionManager.GetString(request.Context(), "username")
+	err = app.DB.AddApplicationNote(username, companyID, note_addition.Note)
 	if err != nil {
 		http.Error(response_writer, "DB update failed: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -171,7 +178,8 @@ func (app *App) RemoveApplicationNote(response_writer http.ResponseWriter, reque
 		return
 	}
 
-	err = app.DB.RemoveApplicationNote(companyID, noteIndex)
+	username := app.SessionManager.GetString(request.Context(), "username")
+	err = app.DB.RemoveApplicationNote(username, companyID, noteIndex)
 	if err != nil {
 		http.Error(response_writer, "DB update failed: "+err.Error(), http.StatusInternalServerError)
 		return
