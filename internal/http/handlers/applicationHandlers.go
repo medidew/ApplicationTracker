@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -13,6 +14,10 @@ import (
 
 func (app *App) ListApplications(response_writer http.ResponseWriter, request *http.Request) {
 	username := app.SessionManager.GetString(request.Context(), "username")
+	if username == "" {
+		http.Error(response_writer, "No username in session", http.StatusUnauthorized)
+	}
+
 	applications, err := app.DB.ListApplications(username)
 	if err != nil {
 		http.Error(response_writer, "DB query failed: "+err.Error(), http.StatusInternalServerError)
@@ -36,6 +41,8 @@ func (app *App) ListApplications(response_writer http.ResponseWriter, request *h
 func (app *App) GetApplication(response_writer http.ResponseWriter, request *http.Request) {
 	companyID := chi.URLParam(request, "companyID")
 	username := app.SessionManager.GetString(request.Context(), "username")
+	fmt.Printf("app.SessionManager: %v\n", app.SessionManager)
+	fmt.Printf("username: %v\n", username)
 
 	job_application, err := app.DB.GetApplication(username, companyID)
 	if err != nil {

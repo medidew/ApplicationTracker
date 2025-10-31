@@ -11,8 +11,8 @@ import (
 func SetupRouter(app *App) *chi.Mux {
 	router := chi.NewRouter()
 
-	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
 	router.Use(app.SessionManager.LoadAndSave)
+	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,8 +15,8 @@ import (
 	"github.com/medidew/ApplicationTracker/internal/store"
 )
 
-func setupTestRouter(*App) http.Handler {
-	router := SetupRouter(setupTestApp())
+func setupTestRouter(app *App) http.Handler {
+	router := SetupRouter(app)
 	return router
 }
 
@@ -45,24 +46,40 @@ func setupTestApp() *App {
 	}
 }
 
-func setupSessionContext(app *App, username string) context.Context {
+func setupSessionContext(app *App, username string) (string, error) {
 	ctx, _ := app.SessionManager.Load(context.Background(), "")
 	app.SessionManager.Put(ctx, "username", username)
-	app.SessionManager.Commit(ctx)
-	return ctx
+	token, _, err := app.SessionManager.Commit(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func setupAll() (*App, http.Handler, string, error) {
+	app := setupTestApp()
+	router := setupTestRouter(app)
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		return nil, nil, "", err
+	}
+	return app, router, token, nil
 }
 
 func TestListApplications(t *testing.T) {
-	app := setupTestApp()
-	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	app, router, token, err := setupAll()
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodGet, "/applications", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodGet, "/applications", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
-	router.ServeHTTP(response_recorder, request)
+	fmt.Printf("token: %v\n", token)
 
-	app.ListApplications(response_recorder, request)
+	router.ServeHTTP(response_recorder, request)
 
 	response := response_recorder.Result()
 	defer response.Body.Close()
@@ -75,10 +92,14 @@ func TestListApplications(t *testing.T) {
 func TestGetApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	// Test fetching an existing application
-	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -94,10 +115,14 @@ func TestGetApplication(t *testing.T) {
 func TestGetInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	// Test fetching a non-existing application
-	request := httptest.NewRequest(http.MethodGet, "/applications/Non%20Existent%20Company", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Non%20Existent%20Company", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -113,7 +138,10 @@ func TestGetInvalidApplication(t *testing.T) {
 func TestCreateApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	new_application := `{
 		"company": "New Company",
@@ -122,7 +150,8 @@ func TestCreateApplication(t *testing.T) {
 		"notes": ["Exciting opportunity."]
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(new_application))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(new_application)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -138,7 +167,10 @@ func TestCreateApplication(t *testing.T) {
 func TestCreateDuplicateApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	duplicate_application := `{
 		"company": "Fake Company",
@@ -147,7 +179,8 @@ func TestCreateDuplicateApplication(t *testing.T) {
 		"notes": ["Another note."]
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(duplicate_application))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPost, "/applications",  io.NopCloser(strings.NewReader(duplicate_application)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -163,9 +196,13 @@ func TestCreateDuplicateApplication(t *testing.T) {
 func TestDeleteApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -181,9 +218,13 @@ func TestDeleteApplication(t *testing.T) {
 func TestDeleteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -199,13 +240,17 @@ func TestDeleteInvalidApplication(t *testing.T) {
 func TestUpdateApplicationStatus(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	status_update := `{
 		"status": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(status_update))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(status_update)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -221,13 +266,17 @@ func TestUpdateApplicationStatus(t *testing.T) {
 func TestUpdateInvalidApplicationStatus(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	status_update := `{
 		"status": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Non%20Existent%20Company", io.NopCloser(strings.NewReader(status_update))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPut, "/applications/Non%20Existent%20Company", io.NopCloser(strings.NewReader(status_update)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -243,13 +292,17 @@ func TestUpdateInvalidApplicationStatus(t *testing.T) {
 func TestUpdateApplicationStatusInvalidPayload(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	invalid_status_update := `{
 		"state": 2
 	}`
 
-	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(invalid_status_update))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPut, "/applications/Fake%20Company", io.NopCloser(strings.NewReader(invalid_status_update)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -265,9 +318,13 @@ func TestUpdateApplicationStatusInvalidPayload(t *testing.T) {
 func TestListApplicationNotes(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company/notes", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodGet, "/applications/Fake%20Company/notes", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -283,13 +340,17 @@ func TestListApplicationNotes(t *testing.T) {
 func TestAddApplicationNote(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	note_addition := `{
 		"note": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(note_addition))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(note_addition)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -305,13 +366,17 @@ func TestAddApplicationNote(t *testing.T) {
 func TestAddApplicationNoteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	note_addition := `{
 		"note": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Non%20Existent%20Company/notes", io.NopCloser(strings.NewReader(note_addition))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPost, "/applications/Non%20Existent%20Company/notes", io.NopCloser(strings.NewReader(note_addition)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -327,13 +392,17 @@ func TestAddApplicationNoteInvalidApplication(t *testing.T) {
 func TestAddApplicationNoteInvalidPayload(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
 	invalid_note_addition := `{
 		"text": "This is a new note."
 	}`
 
-	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(invalid_note_addition))).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodPost, "/applications/Fake%20Company/notes", io.NopCloser(strings.NewReader(invalid_note_addition)))
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -349,9 +418,13 @@ func TestAddApplicationNoteInvalidPayload(t *testing.T) {
 func TestRemoveApplicationNote(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/0", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/0", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -367,9 +440,13 @@ func TestRemoveApplicationNote(t *testing.T) {
 func TestRemoveApplicationNoteInvalidApplication(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company/notes/0", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Non%20Existent%20Company/notes/0", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -385,9 +462,13 @@ func TestRemoveApplicationNoteInvalidApplication(t *testing.T) {
 func TestRemoveApplicationNoteOutOfRange(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/10", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/10", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
@@ -403,9 +484,13 @@ func TestRemoveApplicationNoteOutOfRange(t *testing.T) {
 func TestRemoveApplicationNoteNegativeIndex(t *testing.T) {
 	app := setupTestApp()
 	router := setupTestRouter(app)
-	ctx := setupSessionContext(app, "testuser")
+	token, err := setupSessionContext(app, "testuser")
+	if err != nil {
+		t.Fatalf("Failed to setup session:%v", err.Error())
+	}
 
-	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/-1", nil).WithContext(ctx)
+	request := httptest.NewRequest(http.MethodDelete, "/applications/Fake%20Company/notes/-1", nil)
+	request.AddCookie(&http.Cookie{Name: app.SessionManager.Cookie.Name, Value: token})
 	response_recorder := httptest.NewRecorder()
 
 	router.ServeHTTP(response_recorder, request)
