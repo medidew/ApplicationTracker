@@ -104,3 +104,28 @@
 2025-10-29T22:24:26.381Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 0}
 2025-10-29T22:24:32.369Z	INFO	Request complete	{"method": "GET", "path": "/logout", "status": 0}
 2025-10-29T22:24:36.876Z	WARN	Request failed	{"method": "POST", "path": "/register", "status": 500}
+2025-11-12T18:03:37.150Z	INFO	Logger constructed
+2025-11-12T18:03:37.150Z	INFO	App starting
+2025-11-12T18:03:37.151Z	INFO	Config file loaded
+2025-11-12T18:04:35.683Z	INFO	Logger constructed
+2025-11-12T18:04:35.683Z	INFO	App starting
+2025-11-12T18:04:35.684Z	INFO	Config file loaded
+2025-11-12T18:05:18.281Z	INFO	Password accepted
+2025-11-12T18:05:18.281Z	INFO	Starting HTTP server on :3000
+2025-11-12T18:05:38.944Z	INFO	Logger constructed
+2025-11-12T18:05:38.944Z	INFO	App starting
+2025-11-12T18:05:38.944Z	INFO	Config file loaded
+2025-11-12T18:05:40.508Z	INFO	Password accepted
+2025-11-12T18:05:40.508Z	INFO	Starting HTTP server on :3000
+2025-11-12T18:07:16.944Z	INFO	Logger constructed
+2025-11-12T18:07:16.944Z	INFO	App starting
+2025-11-12T18:07:16.944Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-12T18:07:16.944Z	INFO	Starting HTTP server on :3000
+2025-11-12T18:09:37.833Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:13:04.975Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:14:34.455Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:14:58.003Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:15:12.689Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:15:48.354Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:17:55.804Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-12T18:19:17.084Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}

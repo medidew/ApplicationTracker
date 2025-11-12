@@ -87,7 +87,7 @@ func main() {
 	if database_url != "" {
 		logger.Info("DATABASE_URL env var found, skipping dbconfig...")
 	} else {
-		cfg, err := loadConfig("configs/dbconfig.yaml")
+		cfg, err := loadConfig("configs/dbconfig.yaml") // TODO: Fix for deploy
 		if err != nil {
 			logger.Panic(err.Error())
 		}
@@ -127,7 +127,7 @@ func main() {
 
 	router := handlers.SetupRouter(app)
 
-	logger.Info("Starting HTTP server on :3000")
+	logger.Info("Starting HTTP server on :4000")
 
-	http.ListenAndServe(":3000", router)
+	http.ListenAndServe(":4000", router)
 }

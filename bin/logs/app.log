@@ -1,0 +1,6 @@
+2025-11-12T18:02:33.625Z	INFO	Logger constructed
+2025-11-12T18:02:33.625Z	INFO	App starting
+2025-11-12T18:02:33.625Z	PANIC	open configs/dbconfig.yaml: no such file or directory
+2025-11-12T18:04:24.295Z	INFO	Logger constructed
+2025-11-12T18:04:24.296Z	INFO	App starting
+2025-11-12T18:04:24.296Z	PANIC	open configs/dbconfig.yaml: no such file or directory
