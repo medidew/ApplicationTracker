@@ -185,3 +185,37 @@
 2025-11-21T19:56:11.052Z	INFO	Starting HTTP server on :4000
 2025-11-21T19:56:17.600Z	INFO	username field value: 
 2025-11-21T19:56:17.785Z	WARN	Request failed	{"method": "POST", "path": "/login", "status": 500}
+2025-11-21T20:03:11.749Z	INFO	Logger constructed
+2025-11-21T20:03:11.749Z	INFO	App starting
+2025-11-21T20:03:11.749Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-21T20:03:11.749Z	INFO	Starting HTTP server on :4000
+2025-11-21T20:05:34.035Z	INFO	Logger constructed
+2025-11-21T20:05:34.035Z	INFO	App starting
+2025-11-21T20:05:34.035Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-21T20:05:34.035Z	INFO	Starting HTTP server on :4000
+2025-11-21T20:05:36.919Z	INFO	user login request: 
+2025-11-21T20:05:37.062Z	WARN	Request failed	{"method": "POST", "path": "/login", "status": 500}
+2025-11-21T20:06:02.345Z	INFO	Logger constructed
+2025-11-21T20:06:02.345Z	INFO	App starting
+2025-11-21T20:06:02.345Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-21T20:06:02.346Z	INFO	Starting HTTP server on :4000
+2025-11-21T20:06:04.954Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 400}
+2025-11-21T20:12:38.724Z	INFO	Logger constructed
+2025-11-21T20:12:38.724Z	INFO	App starting
+2025-11-21T20:12:38.724Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-21T20:12:38.724Z	INFO	Starting HTTP server on :4000
+2025-11-21T20:12:42.106Z	INFO	user login request: user
+2025-11-21T20:12:42.278Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 200}
+2025-11-21T20:12:59.795Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-21T20:15:41.159Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-21T20:20:20.906Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-21T20:22:21.149Z	INFO	user login request: user
+2025-11-21T20:22:21.204Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 200}
+2025-11-21T20:22:27.049Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}
+2025-11-21T20:24:25.059Z	INFO	Logger constructed
+2025-11-21T20:24:25.059Z	INFO	App starting
+2025-11-21T20:24:25.059Z	INFO	DATABASE_URL env var found, skipping dbconfig...
+2025-11-21T20:24:25.059Z	INFO	Starting HTTP server on :4000
+2025-11-21T20:24:36.328Z	INFO	user login request: user
+2025-11-21T20:24:36.497Z	INFO	Request complete	{"method": "POST", "path": "/login", "status": 200}
+2025-11-21T20:24:48.380Z	INFO	Request complete	{"method": "GET", "path": "/applications", "status": 401}

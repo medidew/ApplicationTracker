@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/medidew/ApplicationTracker/internal/auth"
@@ -36,9 +35,8 @@ func (app *App) Register(response_writer http.ResponseWriter, request *http.Requ
 }
 
 func (app *App) Login(response_writer http.ResponseWriter, request *http.Request) {
-	fmt.Printf("request: %v\n", request)
 	username := request.FormValue("username")
-	app.Logger.Info("username field value: " + username)
+	app.Logger.Info("user login request: " + username)
 	password := request.FormValue("password")
 
 	hashed_password, err := app.DB.GetUserHashedPassword(username)

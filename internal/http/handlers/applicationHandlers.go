@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -41,8 +40,6 @@ func (app *App) ListApplications(response_writer http.ResponseWriter, request *h
 func (app *App) GetApplication(response_writer http.ResponseWriter, request *http.Request) {
 	companyID := chi.URLParam(request, "companyID")
 	username := app.SessionManager.GetString(request.Context(), "username")
-	fmt.Printf("app.SessionManager: %v\n", app.SessionManager)
-	fmt.Printf("username: %v\n", username)
 
 	job_application, err := app.DB.GetApplication(username, companyID)
 	if err != nil {

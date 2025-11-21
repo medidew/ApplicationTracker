@@ -23,7 +23,8 @@ const ApplicationsPage = async () => {
     }
 
     if (!res.ok) {
-        redirect("/login")
+        console.error("Failed to fetch applications:", data);
+        //redirect("/login")
     }
 
     let applications: Application[] = data;

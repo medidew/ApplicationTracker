@@ -115,7 +115,7 @@ func main() {
 	session_manager := scs.New()
 	session_manager.Lifetime = 12 * time.Hour
 	session_manager.IdleTimeout = 1 * time.Hour
-	session_manager.Cookie.Secure = true
+	session_manager.Cookie.Secure = false // TODO: change if ever out of dev
 	session_manager.Cookie.HttpOnly = true
 	session_manager.Cookie.SameSite = http.SameSiteLaxMode
 
