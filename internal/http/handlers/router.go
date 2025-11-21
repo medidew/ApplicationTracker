@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 
 	"github.com/medidew/ApplicationTracker/internal/http/middleware"
 )
@@ -13,6 +14,14 @@ func SetupRouter(app *App) *chi.Mux {
 
 	router.Use(app.SessionManager.LoadAndSave)
 	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
