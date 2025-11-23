@@ -121,9 +121,10 @@ func main() {
 	session_manager := scs.New()
 	session_manager.Lifetime = 12 * time.Hour
 	session_manager.IdleTimeout = 1 * time.Hour
-	session_manager.Cookie.Secure = true // TODO: change if ever out of dev
+	session_manager.Cookie.Secure = false // TODO: Change to true for production
 	session_manager.Cookie.HttpOnly = true
-	session_manager.Cookie.SameSite = http.SameSiteNoneMode
+	session_manager.Cookie.SameSite = http.SameSiteLaxMode
+	session_manager.Cookie.Path = "/"
 
 	app := &handlers.App{
 		DB:     &store.DB{Pool: pool},
@@ -135,5 +136,5 @@ func main() {
 
 	logger.Info("Starting HTTP server on :4000")
 
-	http.ListenAndServe(":4000", router)
+	http.ListenAndServe("0.0.0.0:4000", router)
 }

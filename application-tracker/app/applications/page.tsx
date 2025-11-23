@@ -1,6 +1,7 @@
-import React from 'react'
-import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import React from "react"
+import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
+import HomeButton from "../components/HomeButton"
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -20,9 +21,9 @@ const ApplicationsPage = async () => {
         method: "GET",
         credentials: "include",
         headers: {
-            'Cookie': browser_cookies.toString() // Forward cookies to the API
+            "Cookie": browser_cookies.toString() // Forward cookies to the API
         },
-    }); // TODO: put api config stuff
+    });
 
     let data
     try {
@@ -33,17 +34,36 @@ const ApplicationsPage = async () => {
 
     if (!response.ok) {
         console.error("Failed to fetch applications:", response);
-        //redirect("/login")
+        if (response.status === 401) {
+            console.log("User not authenticated, redirecting to login.");
+            redirect("/login")
+        }
     }
 
     let applications: Application[] = data;
 
     return (
         <>
-            <h1>Applications</h1>
-            <ul>
-                {applications.map(application => application.company)}
-            </ul>
+            <div className="flex flex-col items-center justify-start py-10">
+                <HomeButton/>
+            </div>
+            <div className="flex flex-col justify-center items-center font-bold font-sans">
+                <h1>Applications</h1>
+                <ul>
+                    {applications.map((app, index) => (
+                        <li key={index}>
+                            <h2>{app.company} - {app.role}</h2>
+                            <p>Status: {app.status}</p>
+                            <h3>Notes:</h3>
+                            <ul>
+                                {app.notes.map((note, noteIndex) => (
+                                    <li key={noteIndex}>{note}</li>
+                                ))}
+                            </ul>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </>
     )
 }

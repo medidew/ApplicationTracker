@@ -14,7 +14,7 @@ func SetupRouter(app *App) *chi.Mux {
 
 	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"},
+		AllowedOrigins:   []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://100.111.119.68:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},

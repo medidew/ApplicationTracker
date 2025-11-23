@@ -1,5 +1,6 @@
-'use client'; // enables events and reactivity
-import React from 'react'
+"use client"; // enables events and reactivity
+import { redirect } from "next/navigation"
+import React from "react"
 
 const LoginForm = () => {
 
@@ -18,10 +19,11 @@ const LoginForm = () => {
 
         if (response.ok) {
             // Handle successful login (e.g., redirect to applications page)
-            console.log('Login successful');
+            console.log("Login successful");
+            redirect("/applications");
         } else {
             // Handle login failure (e.g., show error message)
-            console.error('Login failed');
+            console.error("Login failed");
         }
     }
 
