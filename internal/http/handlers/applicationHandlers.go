@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -13,6 +14,9 @@ import (
 
 func (app *App) ListApplications(response_writer http.ResponseWriter, request *http.Request) {
 	username := app.SessionManager.GetString(request.Context(), "username")
+	fmt.Printf("request: %v\n", request)
+	fmt.Printf("request.Cookies(): %v\n", request.Cookies())
+	fmt.Printf("username: %v\n", username)
 	if username == "" {
 		http.Error(response_writer, "No username in session", http.StatusUnauthorized)
 	}

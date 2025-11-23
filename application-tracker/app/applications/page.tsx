@@ -1,5 +1,6 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
@@ -13,17 +14,25 @@ interface Application {
 
 const ApplicationsPage = async () => {
     const url = API_BASE + "/applications"
-    const res = await fetch(url); // TODO: put api config stuff
+    const browser_cookies = await cookies();
+    
+    const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+            'Cookie': browser_cookies.toString() // Forward cookies to the API
+        },
+    }); // TODO: put api config stuff
 
     let data
     try {
-        data = await res.json();
+        data = await response.json();
     } catch {
         data = null;
     }
 
-    if (!res.ok) {
-        console.error("Failed to fetch applications:", data);
+    if (!response.ok) {
+        console.error("Failed to fetch applications:", response);
         //redirect("/login")
     }
 

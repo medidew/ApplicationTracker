@@ -11,7 +11,7 @@ const LoginForm = () => {
         const url = API_BASE + "/login"
 
         const response = await fetch(url, {
-            method: 'POST',
+            method: "POST",
             body: formData,
             credentials: "include",
         });

@@ -68,6 +68,12 @@ func main() {
 		zapcore.NewCore(
 			zapcore.NewConsoleEncoder(encoder_cfg),
 			console_write_syncer,
+			zap.InfoLevel,
+		),
+
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(encoder_cfg),
+			console_write_syncer,
 			zap.WarnLevel,
 		),
 	)
@@ -115,9 +121,9 @@ func main() {
 	session_manager := scs.New()
 	session_manager.Lifetime = 12 * time.Hour
 	session_manager.IdleTimeout = 1 * time.Hour
-	session_manager.Cookie.Secure = false // TODO: change if ever out of dev
+	session_manager.Cookie.Secure = true // TODO: change if ever out of dev
 	session_manager.Cookie.HttpOnly = true
-	session_manager.Cookie.SameSite = http.SameSiteLaxMode
+	session_manager.Cookie.SameSite = http.SameSiteNoneMode
 
 	app := &handlers.App{
 		DB:     &store.DB{Pool: pool},

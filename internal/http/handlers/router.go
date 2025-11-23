@@ -12,7 +12,6 @@ import (
 func SetupRouter(app *App) *chi.Mux {
 	router := chi.NewRouter()
 
-	router.Use(app.SessionManager.LoadAndSave)
 	router.Use(middleware.ZapLoggerMiddleware(app.Logger))
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:3000"},
@@ -22,6 +21,7 @@ func SetupRouter(app *App) *chi.Mux {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+	router.Use(app.SessionManager.LoadAndSave)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 
